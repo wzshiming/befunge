@@ -9,32 +9,27 @@ import (
 
 // Scanner befunge scanner.
 type Scanner struct {
-	src    [][]byte
-	rudder byte
-	x, y   int
-	ch     byte
-	isStr  bool
+	src           [][]byte
+	rudder        byte
+	x, y          int
+	ch            byte
+	isStr         bool
+	height, width int
 }
 
 // NewScanner create a new befunge codes scanner.
-func NewScanner(s []byte) *Scanner {
-	scan := &Scanner{
-		src: bytes.Split(s, []byte{'\n'}),
+func NewScanner(src []byte) *Scanner {
+	s := &Scanner{
+		src: bytes.Split(src, []byte{'\n'}),
 	}
-	max := 0
-	for _, v := range scan.src {
-		if len(v) > max {
-			max = len(v)
+	for _, v := range s.src {
+		if len(v) > s.width {
+			s.width = len(v)
 		}
 	}
-
-	bs := make([]byte, max)
-	for i, v := range scan.src {
-		if off := max - len(v); off >= 0 {
-			scan.src[i] = append(scan.src[i], bs[:off]...)
-		}
-	}
-	return scan
+	s.height = len(s.src)
+	s.resize(s.width, s.height)
+	return s
 }
 
 // String returns the current codes.
@@ -132,7 +127,6 @@ func (s *Scanner) Next(i int) {
 		s.x += i
 	}
 	s.checkLoop()
-
 	s.ch = s.src[s.y][s.x]
 }
 
@@ -161,11 +155,26 @@ func (s *Scanner) checkPut(x, y int) bool {
 		y < 0 {
 		return false
 	}
-	if ya := y - len(s.src); ya > 0 {
-		s.src = append(s.src, make([][]byte, ya+2)...)
-	}
-	if xa := x - len(s.src[y]); xa > 0 {
-		s.src[y] = append(s.src[y], make([]byte, xa+1)...)
+	if x >= s.width || y >= s.height {
+		if x >= s.width {
+			s.width = x
+		}
+		if y >= s.height {
+			s.height = y
+		}
+		s.resize(s.width, s.height)
 	}
 	return true
+}
+
+func (s *Scanner) resize(x, y int) {
+	if off := y - len(s.src); off >= 0 {
+		s.src = append(s.src, make([][]byte, off+1)...)
+	}
+	for i := 0; i != len(s.src); i++ {
+		v := s.src[i]
+		if off := x - len(v); off >= 0 {
+			s.src[i] = append(s.src[i], make([]byte, off+1)...)
+		}
+	}
 }
