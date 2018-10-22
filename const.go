@@ -1,5 +1,7 @@
 package befunge
 
+import "math"
+
 // https://en.wikipedia.org/wiki/Befunge
 // 0-9	Push this number on the stack.
 const (
@@ -34,4 +36,7 @@ const (
 	OpBridge    = '#' // Trampoline: Skip next cell.
 	OpBlank     = ' ' // (i.e. a space) No-op. Does nothing.
 	OpEnd       = '@' // End program.
+
+	OpOther = math.MaxUint8
+	OpNode  = 0
 )

@@ -28,7 +28,7 @@ func NewScanner(s []byte) *Scanner {
 		}
 	}
 
-	bs := bytes.Repeat([]byte{OpBlank}, max)
+	bs := make([]byte, max)
 	for i, v := range scan.src {
 		if off := max - len(v); off >= 0 {
 			scan.src[i] = append(scan.src[i], bs[:off]...)
@@ -57,14 +57,13 @@ func (s *Scanner) String() string {
 }
 
 // Scan returns scan a code.
-func (s *Scanner) Scan() (int, byte, bool) {
+func (s *Scanner) Scan() (int, byte) {
 	if str, ok := s.scanString(); ok {
-		return str, 0, true
+		return str, OpOther
 	} else if num, ok := s.scanInteger(); ok {
-		return num, 0, true
+		return num, OpOther
 	} else {
-		ch := s.ch
-		return 0, ch, true
+		return 0, s.ch
 	}
 }
 

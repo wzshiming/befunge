@@ -89,13 +89,10 @@ func (r *Runner) Duplicate() {
 }
 
 func (r *Runner) runStep() (bool, error) {
-	val, ch, ok := r.Scan()
-	if !ok {
-		return false, nil
-	}
+	val, ch := r.Scan()
 
 	switch ch {
-	case 0:
+	case OpOther:
 		r.Put(val)
 	case OpAdd:
 		a := r.Get()
@@ -172,16 +169,14 @@ func (r *Runner) runStep() (bool, error) {
 		fmt.Fscanf(r.input, "%d", &v)
 		r.Put(v)
 	case OpInRune:
-		str := ""
-		fmt.Fscanf(r.input, "%s", &str)
-		for _, v := range str {
-			r.Put(int(v))
-		}
+		char := 0
+		fmt.Fscanf(r.input, "%c", &char)
+		r.Put(char)
 	case OpModRight, OpMovLeft, OpMovUp, OpMovDown:
 		r.SetRudder(ch)
 	case OpBridge:
 		r.Next(1)
-	case OpBlank:
+	case OpBlank, OpNode:
 	case OpMovRandom:
 		randSwitch := []byte{OpModRight, OpMovLeft, OpMovUp, OpMovDown}
 		ru := randSwitch[rand.Int()%len(randSwitch)]
