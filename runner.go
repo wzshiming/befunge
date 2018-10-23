@@ -184,8 +184,8 @@ func (r *Runner) runStep() (bool, error) {
 	case OpEnd:
 		return false, nil
 	default:
-		e := string([]byte{ch})
-		return false, fmt.Errorf("Error undefined: %s,", e)
+		x, y := r.Point()
+		return false, fmt.Errorf("Error in %d, %d undefined: '%c'", x, y, ch)
 	}
 	return true, nil
 }

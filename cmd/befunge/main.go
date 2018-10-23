@@ -60,6 +60,7 @@ func main() {
 		}
 		err = run.Run()
 		if err != nil {
+			fmt.Println()
 			fmt.Println(err)
 			return
 		}

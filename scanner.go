@@ -51,6 +51,16 @@ func (s *Scanner) String() string {
 	return *(*string)(unsafe.Pointer(&str))
 }
 
+// Point returns current point
+func (s *Scanner) Point() (int, int) {
+	return s.x, s.y
+}
+
+// Size returns current size
+func (s *Scanner) Size() (int, int) {
+	return s.width, s.height
+}
+
 // Scan returns scan a code.
 func (s *Scanner) Scan() (int, byte) {
 	if str, ok := s.scanString(); ok {
