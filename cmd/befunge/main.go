@@ -38,12 +38,15 @@ func main() {
 			return
 		}
 
+		var input io.Reader = os.Stdin
+		var output io.Writer = os.Stdout
+
 		run := befunge.NewRunner(src)
 		if *debug {
 			buf := bytes.NewBuffer(nil)
+			output = buf
+			input = io.TeeReader(input, output)
 			run.SetDebug(*debug)
-			run.SetOutput(buf)
-			run.SetInput(io.TeeReader(os.Stdin, buf))
 			run.SetStep(func() {
 				tmp := bytes.NewBuffer(nil)
 				tmp.WriteString(cursor.RawClear())
@@ -58,12 +61,15 @@ func main() {
 				fmt.Print(out)
 			})
 		}
+		run.SetOutput(output)
+		run.SetInput(input)
 		err = run.Run()
 		if err != nil {
 			fmt.Println()
 			fmt.Println(err)
+			os.Exit(1)
 			return
 		}
+		fmt.Println()
 	}
-	fmt.Println()
 }
