@@ -193,10 +193,10 @@ func (r *Runner) runStep() (bool, error) {
 // Run befunge code.
 func (r *Runner) Run() error {
 	for {
+		r.Next(1)
 		if r.step != nil {
 			r.step()
 		}
-		r.Next(1)
 		ok, err := r.runStep()
 		if err != nil {
 			return err
