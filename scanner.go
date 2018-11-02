@@ -7,6 +7,11 @@ import (
 	"github.com/wzshiming/ctc"
 )
 
+var (
+	pointStart = ctc.BackgroundRed.String()
+	pointEnd   = ctc.Reset.String()
+)
+
 // Scanner befunge scanner.
 type Scanner struct {
 	src           [][]byte
@@ -39,9 +44,9 @@ func (s *Scanner) String() string {
 		if i == s.y {
 			off := s.x
 			str = append(str, src[:off]...)
-			str = append(str, ctc.BackgroundRed.String()...)
+			str = append(str, pointStart...)
 			str = append(str, src[off])
-			str = append(str, ctc.Reset.String()...)
+			str = append(str, pointEnd...)
 			str = append(str, src[off+1:]...)
 		} else {
 			str = append(str, src...)
