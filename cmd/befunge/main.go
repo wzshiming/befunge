@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/wzshiming/befunge"
@@ -51,7 +52,15 @@ func main() {
 				tmp := bytes.NewBuffer(nil)
 				tmp.WriteString(cursor.RawClear())
 				tmp.WriteString("\n=======Stack=======\n")
-				tmp.WriteString(fmt.Sprint(run.Stack()))
+				for i, v := range run.Stack() {
+					if i%5 == 0 {
+						tmp.WriteString("\n")
+					} else {
+						tmp.WriteString(" ")
+					}
+					tmp.WriteString(fmt.Sprintf("%7s%4d,", strconv.QuoteRuneToASCII(rune(v)), v))
+				}
+
 				tmp.WriteString("\n=======Debug=======\n")
 				tmp.WriteString(run.String())
 				tmp.WriteString("\n=======Output=======\n")
