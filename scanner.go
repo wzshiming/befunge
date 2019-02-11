@@ -146,10 +146,10 @@ func (s *Scanner) Next(i int) {
 }
 
 func (s *Scanner) check(x, y int) bool {
-	return !(s.x < 0 ||
-		s.y < 0 ||
-		s.y >= len(s.src) ||
-		s.x >= len(s.src[s.y]))
+	return !(x < 0 ||
+		y < 0 ||
+		y >= len(s.src) ||
+		x >= len(s.src[y]))
 }
 
 func (s *Scanner) checkLoop() {
