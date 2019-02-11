@@ -16,6 +16,7 @@ type Runner struct {
 	output io.Writer
 	step   func()
 	debug  bool
+	errors []error
 }
 
 // NewRunner create a new befunge codes runner.
@@ -185,9 +186,15 @@ func (r *Runner) runStep() (bool, error) {
 		return false, nil
 	default:
 		x, y := r.Point()
-		return false, fmt.Errorf("Error in %d, %d undefined: '%c'", x, y, ch)
+		err := fmt.Errorf("Error in %d, %d undefined: '%c'", x, y, ch)
+		r.errors = append(r.errors, err)
 	}
 	return true, nil
+}
+
+// Errors of the Runner
+func (r *Runner) Errors() []error {
+	return r.errors
 }
 
 // Run befunge code.

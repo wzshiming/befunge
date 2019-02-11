@@ -63,6 +63,14 @@ func main() {
 
 				tmp.WriteString("\n=======Debug=======\n")
 				tmp.WriteString(run.String())
+
+				errs := run.Errors()
+				if len(errs) != 0 {
+					tmp.WriteString("\n=======Warning=======\n")
+					for i, err := range errs {
+						tmp.WriteString(fmt.Sprintf("%d. %s\n", i+1, err.Error()))
+					}
+				}
 				tmp.WriteString("\n=======Output=======\n")
 				tmp.WriteString(buf.String())
 				out := tmp.String()
