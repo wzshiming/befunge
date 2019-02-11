@@ -68,10 +68,10 @@ func (s *Scanner) Size() (int, int) {
 
 // Scan returns scan a code.
 func (s *Scanner) Scan() (int, byte) {
-	if str, ok := s.scanString(); ok {
-		return str, OpOther
-	} else if num, ok := s.scanInteger(); ok {
-		return num, OpOther
+	if str, op, ok := s.scanString(); ok {
+		return str, op
+	} else if num, op, ok := s.scanInteger(); ok {
+		return num, op
 	} else {
 		return 0, s.ch
 	}
@@ -93,34 +93,32 @@ func (s *Scanner) PutCode(x, y, v int) {
 	s.src[y][x] = byte(v)
 }
 
-func (s *Scanner) scanInteger() (int, bool) {
+func (s *Scanner) scanInteger() (int, byte, bool) {
 	if s.ch < '0' || s.ch > '9' {
-		return 0, false
+		return 0, OpNone, false
 	}
 
 	sum := int(s.ch) - '0'
-	return int(sum), true
+	return int(sum), OpOther, true
 }
 
-func (s *Scanner) scanString() (int, bool) {
+func (s *Scanner) scanString() (int, byte, bool) {
 	if s.isStr {
 		if s.ch == OpStringMode {
 			s.isStr = false
-			s.Next(1)
-			return 0, false
+			return 0, OpNone, true
 		}
 	} else {
-		if s.ch != OpStringMode {
-			return 0, false
+		if s.ch == OpStringMode {
+			s.isStr = true
+			return 0, OpNone, true
 		}
-		s.isStr = true
-		s.Next(1)
-
+		return 0, OpNone, false
 	}
 	if s.ch == 0 {
 		s.ch = ' '
 	}
-	return int(s.ch), true
+	return int(s.ch), OpOther, true
 }
 
 // SetRudder set rudder.

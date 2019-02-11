@@ -38,5 +38,5 @@ const (
 	OpEnd       = '@' // End program.
 
 	OpOther = math.MaxUint8
-	OpNode  = 0
+	OpNone  = 0
 )

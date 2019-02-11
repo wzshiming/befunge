@@ -158,38 +158,57 @@ func (r *Runner) runStep() (bool, error) {
 		v := r.GetCode(x, y)
 		r.Put(v)
 	case OpOutInt:
-		if r.output != nil {
-			io.WriteString(r.output, strconv.FormatInt(int64(r.Get()), 10))
-		}
+		r.Output(strconv.FormatInt(int64(r.Get()), 10))
 	case OpOutRune:
-		if r.output != nil {
-			io.WriteString(r.output, string([]byte{byte(r.Get())}))
-		}
+		r.Output(string([]byte{byte(r.Get())}))
 	case OpInInt:
 		v := 0
-		fmt.Fscanf(r.input, "%d", &v)
+		for {
+			_, err := fmt.Fscanf(r.input, "%d", &v)
+			if err == nil {
+				break
+			}
+			r.errors = append(r.errors, err)
+		}
 		r.Put(v)
 	case OpInRune:
 		char := 0
-		fmt.Fscanf(r.input, "%c", &char)
+		for {
+			_, err := fmt.Fscanf(r.input, "%c", &char)
+			if err == nil {
+				break
+			}
+			r.errors = append(r.errors, err)
+		}
 		r.Put(char)
 	case OpModRight, OpMovLeft, OpMovUp, OpMovDown:
 		r.SetRudder(ch)
 	case OpBridge:
 		r.Next(1)
-	case OpBlank, OpNode:
 	case OpMovRandom:
 		randSwitch := []byte{OpModRight, OpMovLeft, OpMovUp, OpMovDown}
 		ru := randSwitch[rand.Int()%len(randSwitch)]
 		r.SetRudder(ru)
 	case OpEnd:
 		return false, nil
+
+	case OpBlank, OpNone:
 	default:
 		x, y := r.Point()
 		err := fmt.Errorf("Error in %d, %d undefined: '%c'", x, y, ch)
 		r.errors = append(r.errors, err)
 	}
 	return true, nil
+}
+
+// Output print
+func (r *Runner) Output(s string) {
+	if r.output != nil {
+		io.WriteString(r.output, s)
+	}
+	if r.step != nil {
+		r.step()
+	}
 }
 
 // Errors of the Runner
