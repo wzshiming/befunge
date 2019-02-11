@@ -117,6 +117,9 @@ func (s *Scanner) scanString() (int, bool) {
 		s.Next(1)
 
 	}
+	if s.ch == 0 {
+		s.ch = ' '
+	}
 	return int(s.ch), true
 }
 
