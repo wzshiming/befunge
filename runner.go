@@ -164,7 +164,8 @@ func (r *Runner) runStep() (bool, error) {
 	case OpInInt:
 		v := 0
 		for {
-			_, err := fmt.Fscanf(r.input, "%d", &v)
+			r.Output("\n(Enter a number '&') ")
+			_, err := fmt.Fscanf(r.input, "%d\n", &v)
 			if err == nil {
 				break
 			}
@@ -174,7 +175,8 @@ func (r *Runner) runStep() (bool, error) {
 	case OpInRune:
 		char := 0
 		for {
-			_, err := fmt.Fscanf(r.input, "%c", &char)
+			r.Output("\n(Enter a character '~') ")
+			_, err := fmt.Fscanf(r.input, "%c\n", &char)
 			if err == nil {
 				break
 			}
