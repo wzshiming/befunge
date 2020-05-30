@@ -6,29 +6,27 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"time"
 )
 
 // Runner befunge runner.
 type Runner struct {
 	Scanner
-	stack  []int
-	input  io.Reader
-	output io.Writer
-	step   func()
-	debug  bool
-	errors []error
-	rand   *rand.Rand
+	stack    []int
+	input    io.Reader
+	output   io.Writer
+	step     func()
+	debug    bool
+	errors   []error
+	randFunc func(n int) int
 }
 
 // NewRunner create a new befunge codes runner.
 func NewRunner(s []byte) *Runner {
-
 	return &Runner{
-		Scanner: *NewScanner(s),
-		output:  os.Stdout,
-		input:   os.Stdin,
-		rand:    rand.New(rand.NewSource(time.Now().UnixNano())),
+		Scanner:  *NewScanner(s),
+		output:   os.Stdout,
+		input:    os.Stdin,
+		randFunc: rand.Intn,
 	}
 }
 
@@ -45,6 +43,11 @@ func (r *Runner) SetInput(input io.Reader) {
 // SetOutput sets output.
 func (r *Runner) SetOutput(output io.Writer) {
 	r.output = output
+}
+
+// SetRandFunc sets randFunc.
+func (r *Runner) SetRandFunc(randFunc func(n int) int) {
+	r.randFunc = randFunc
 }
 
 // SetStep sets step.
@@ -195,7 +198,7 @@ func (r *Runner) runStep() (bool, error) {
 		r.Next(1)
 	case OpMovRandom:
 		randSwitch := []byte{OpModRight, OpMovLeft, OpMovUp, OpMovDown}
-		ru := randSwitch[r.rand.Int()%len(randSwitch)]
+		ru := randSwitch[r.randFunc(len(randSwitch))]
 		r.SetRudder(ru)
 	case OpEnd:
 		return false, nil

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -16,6 +17,7 @@ import (
 
 var debug = flag.Bool("d", false, "debug")
 var interval = flag.Duration("i", time.Second/100, "debug interval")
+var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func init() {
 	flag.Usage = func() {
@@ -32,6 +34,7 @@ func main() {
 		flag.Usage()
 		return
 	}
+
 	for _, path := range args {
 		src, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -78,6 +81,7 @@ func main() {
 				fmt.Print(out)
 			})
 		}
+		run.SetRandFunc(randSource.Intn)
 		run.SetOutput(output)
 		run.SetInput(input)
 		err = run.Run()
