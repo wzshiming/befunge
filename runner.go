@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 // Runner befunge runner.
@@ -17,14 +18,17 @@ type Runner struct {
 	step   func()
 	debug  bool
 	errors []error
+	rand   *rand.Rand
 }
 
 // NewRunner create a new befunge codes runner.
 func NewRunner(s []byte) *Runner {
+
 	return &Runner{
 		Scanner: *NewScanner(s),
 		output:  os.Stdout,
 		input:   os.Stdin,
+		rand:    rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 }
 
@@ -163,8 +167,9 @@ func (r *Runner) runStep() (bool, error) {
 		r.Output(string([]byte{byte(r.Get())}))
 	case OpInInt:
 		v := 0
+		info := fmt.Sprintf("\n(Enter a number '%s'): ", string([]byte{ch}))
 		for {
-			r.Output("\n(Enter a number '&') ")
+			r.Output(info)
 			_, err := fmt.Fscanf(r.input, "%d\n", &v)
 			if err == nil {
 				break
@@ -174,8 +179,9 @@ func (r *Runner) runStep() (bool, error) {
 		r.Put(v)
 	case OpInRune:
 		char := 0
+		info := fmt.Sprintf("\n(Enter a character '%s'): ", string([]byte{ch}))
 		for {
-			r.Output("\n(Enter a character '~') ")
+			r.Output(info)
 			_, err := fmt.Fscanf(r.input, "%c\n", &char)
 			if err == nil {
 				break
@@ -189,7 +195,7 @@ func (r *Runner) runStep() (bool, error) {
 		r.Next(1)
 	case OpMovRandom:
 		randSwitch := []byte{OpModRight, OpMovLeft, OpMovUp, OpMovDown}
-		ru := randSwitch[rand.Int()%len(randSwitch)]
+		ru := randSwitch[r.rand.Int()%len(randSwitch)]
 		r.SetRudder(ru)
 	case OpEnd:
 		return false, nil
