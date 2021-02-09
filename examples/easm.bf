@@ -1,4 +1,4 @@
->800p          11v
+>008p          11v
  v"love"0     < >+v
  v"power"0   <  1$:
  v"strength"0?^# <0

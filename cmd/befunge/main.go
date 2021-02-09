@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/wzshiming/befunge"
@@ -51,17 +50,21 @@ func main() {
 			output = buf
 			input = io.TeeReader(input, output)
 			run.SetDebug(*debug)
+
+			tmp := bytes.NewBuffer(nil)
 			run.SetStep(func() {
-				tmp := bytes.NewBuffer(nil)
+				tmp.Reset()
 				tmp.WriteString(cursor.RawClear())
 				tmp.WriteString("\n=======Stack=======\n")
 				for i, v := range run.Stack() {
-					if i%5 == 0 {
-						tmp.WriteString("\n")
-					} else {
-						tmp.WriteString(" ")
+					if i != 0 {
+						if i%5 == 0 {
+							tmp.WriteString("\n")
+						} else {
+							tmp.WriteString(" ")
+						}
 					}
-					tmp.WriteString(fmt.Sprintf("%7s%4d,", strconv.QuoteRuneToASCII(rune(v)), v))
+					tmp.WriteString(fmt.Sprintf("%s,", befunge.CodeText(v)))
 				}
 
 				tmp.WriteString("\n=======Debug=======\n")
@@ -70,8 +73,14 @@ func main() {
 				errs := run.Errors()
 				if len(errs) != 0 {
 					tmp.WriteString("\n=======Warning=======\n")
+					off := 0
+					max := 5
+					if len(errs) > max {
+						off = len(errs) - max
+						errs = errs[len(errs)-max:]
+					}
 					for i, err := range errs {
-						tmp.WriteString(fmt.Sprintf("%d. %s\n", i+1, err.Error()))
+						tmp.WriteString(fmt.Sprintf("%d. %s\n", off+i+1, err.Error()))
 					}
 				}
 				tmp.WriteString("\n=======Output=======\n")

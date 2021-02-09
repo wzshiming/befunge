@@ -2,19 +2,24 @@ package befunge
 
 import (
 	"bytes"
+	"fmt"
+	"strconv"
 	"unsafe"
 
 	"github.com/wzshiming/ctc"
 )
 
 var (
-	pointStart = ctc.BackgroundRed.String()
-	pointEnd   = ctc.Reset.String()
+	pointColorStart   = ctc.BackgroundRed.String()
+	editedColorStart  = ctc.BackgroundBlue.String()
+	colorEnd          = ctc.Reset.String()
+	editedNoPrintText = fmt.Sprintf("%s?%s", ctc.BackgroundBlue|ctc.ForegroundRed, colorEnd)
 )
 
 // Scanner befunge scanner.
 type Scanner struct {
 	src           [][]byte
+	edited        map[int]map[int]struct{}
 	rudder        byte
 	x, y          int
 	ch            byte
@@ -43,17 +48,54 @@ func (s *Scanner) String() string {
 	for i, src := range s.src {
 		if i == s.y {
 			off := s.x
-			str = append(str, src[:off]...)
-			str = append(str, pointStart...)
+			str = append(str, s.markEdited(0, i, src[:off])...)
+			str = append(str, pointColorStart...)
 			str = append(str, src[off])
-			str = append(str, pointEnd...)
-			str = append(str, src[off+1:]...)
+			str = append(str, colorEnd...)
+			str = append(str, s.markEdited(off+1, i, src[off+1:])...)
 		} else {
-			str = append(str, src...)
+			str = append(str, s.markEdited(0, i, src)...)
 		}
 		str = append(str, '\n')
 	}
+	str = bytes.TrimSpace(str)
+	str = append(str, []byte(fmt.Sprintf("\n(%d,%d) %s", s.x, s.y, CodeText(int(s.ch))))...)
 	return *(*string)(unsafe.Pointer(&str))
+}
+
+func (s *Scanner) markEdited(xoff, y int, data []byte) []byte {
+	if s.edited == nil || s.edited[y] == nil {
+		return data
+	}
+	out := make([]byte, 0, len(data)*2)
+	for i, c := range data {
+		_, edited := s.edited[y][i+xoff]
+		if !edited {
+			out = append(out, c)
+		} else if strconv.IsPrint(rune(c)) {
+			out = append(out, editedColorStart...)
+			out = append(out, c)
+			out = append(out, colorEnd...)
+		} else {
+			out = append(out, editedNoPrintText...)
+		}
+	}
+	return out
+}
+
+// SprintText returns the print text
+func SprintText(r []byte) []byte {
+	out := []byte{}
+	for _, c := range r {
+		if strconv.IsPrint(rune(c)) {
+			out = append(out, c)
+		} else if c == 0 {
+			out = append(out, ' ')
+		} else {
+			out = append(out, editedNoPrintText...)
+		}
+	}
+	return out
 }
 
 // Point returns current point
@@ -90,6 +132,13 @@ func (s *Scanner) PutCode(x, y, v int) {
 	if !s.checkPut(int(x), int(y)) {
 		return
 	}
+	if s.edited == nil {
+		s.edited = map[int]map[int]struct{}{}
+	}
+	if s.edited[y] == nil {
+		s.edited[y] = map[int]struct{}{}
+	}
+	s.edited[y][x] = struct{}{}
 	s.src[y][x] = byte(v)
 }
 
@@ -193,4 +242,9 @@ func (s *Scanner) resize(x, y int) {
 			s.src[i] = append(s.src[i], make([]byte, off+1)...)
 		}
 	}
+}
+
+// CodeText returns the text of code
+func CodeText(v int) string {
+	return fmt.Sprintf("(%q %d)", v, v)
 }

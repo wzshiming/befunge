@@ -206,7 +206,7 @@ func (r *Runner) runStep() (bool, error) {
 	case OpBlank, OpNone:
 	default:
 		x, y := r.Point()
-		err := fmt.Errorf("Error in %d, %d undefined: '%c'", x, y, ch)
+		err := fmt.Errorf("Error in %d, %d undefined: %s", x, y, CodeText(int(ch)))
 		r.errors = append(r.errors, err)
 	}
 	return true, nil
